@@ -62,8 +62,11 @@ let rec merge_sort x = match x with
 
 let rec string_of_lambda x = match x with
     | Var xs -> xs
-    | App (a, b) -> "(" ^ string_of_lambda a ^ " " ^ string_of_lambda b ^ ")"
-    | Abs (s, e) -> "(\\" ^ s ^ "." ^ string_of_lambda e ^ ")";;
+    | Abs (x, y) -> "\\" ^ x ^ "." ^ string_of_lambda y
+    | App (Abs (_, _) as abs, Var y) -> "(" ^ string_of_lambda abs ^ ") " ^ y
+    | App (Abs (_, _) as abs, y) -> "(" ^ string_of_lambda abs ^ ") (" ^ string_of_lambda y ^ ")"
+    | App (x, Var y) -> string_of_lambda x ^ " " ^ y
+    | App (x, y) -> string_of_lambda x ^ " (" ^ string_of_lambda y ^ ")";;
     
    
 let lexer = make_lexer ["\\";".";"(";")";";"];;
@@ -93,7 +96,12 @@ let parse tokens =
             | Some l -> match l with
                 | Kwd ")" -> t
         				| Kwd ";" -> t
-        				| _ -> App(t, parse_lambda()) in
-    parse_lambda();; 
+                | Kwd "\\" -> App(t, parse_lambda())
+                | Kwd "("  -> let _ = next() and arg = parse_lambda() in
+                              eat ")";
+                              parse_app (App (t, arg));
+        				| Ident v -> let _ = next() in parse_app (App (t, Var v))
+                | _ -> failwith "Unexpected symbol"
+    in parse_lambda();; 
     
 let lambda_of_string x = parse(lexer(Stream.of_string (x^";")));;    
