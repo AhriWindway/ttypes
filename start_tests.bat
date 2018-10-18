@@ -1,1 +1,1 @@
-ocamlc hw1.ml hw1_reduction.ml hw2_unify.ml t.ml t_hw1.ml t_hw1_reduction.ml t_hw2_unify.ml -o test.exe && test.exe
+ocamlc hw1.ml hw1_reduction.ml hw2_unify.ml hw2_inference.ml t.ml t_hw1.ml t_hw1_reduction.ml t_hw2_unify.ml t_hw2_inference.ml -o test.exe && test.exe
